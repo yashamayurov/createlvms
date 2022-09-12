@@ -1,0 +1,19 @@
+---
+# tasks file for createlvms
+- name: create partitions
+  community.general.parted:
+    device: "/dev/{{ iscsi_physical_device }}"
+    number: "{{ iscsi_part_number }}"
+    state: present
+    label: gpt
+    flags: [ lvm ]
+- name: create LV Group
+  community.general.lvg:
+    vg: "{{ iscsi_volumegroup_name }}"
+    pvs: "{{ iscsi_partition_path }}" #/dev/sdc1
+- name: createLVMs
+  community.general.lvol:
+    vg: "{{ iscsi_volumegroup_name }}"
+    lv: "{{ item.name }}"
+    size: "{{ item.size }}"
+  loop: "{{iscsi_lvol_list}}"
